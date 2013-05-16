@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:jdbc="http://www.springframework.org/schema/jdbc"
+	xsi:schemaLocation="
+        http://www.springframework.org/schema/beans     
+        http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+        http://www.springframework.org/schema/jdbc
+        http://www.springframework.org/schema/jdbc/spring-jdbc-3.0.xsd">
+
+	<bean id="jdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
+		<property name="dataSource" ref="dataSource"/>
+	</bean>
+
+	<!-- 
+		Spring has a simple embedded database library.
+		The default implementation uses sql scripts to execute against that database
+
+    <jdbc:embedded-database id="dataSource">
+        <jdbc:script location="classpath:schema.sql"/>
+        <jdbc:script location="classpath:test-data.sql"/>
+    </jdbc:embedded-database>
+    
+    But we are using the Populator which loads from an XLS file
+    The structure and data of the XLS sheet, by and large will become your database table.
+		
+    -->
+	<bean id="dataSource"
+		class="org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseFactoryBean">
+		<property name="databaseType" value="HSQL"/>
+		<property name="databaseName" value="prodsample"/>
+		<property name="databasePopulator">
+			<bean class="org.soqqo.tools.db.POIXLSDatabasePopulator">
+				<property name="spreadsheets">
+					<list>
+						<bean class="org.soqqo.tools.db.SpreadSheetConfig">
+							<property name="name" value="table1"/>
+							<property name="spreadSheetFile" value="classpath:1sheet-sample.xls"/>
+							<property name="worksheetName" value="Sheet1"/>
+						</bean>
+						<!-- you can have more than one sheet, and read from the same XLS 
+						<bean class="org.soqqo.database.SpreadSheetConfig">
+							<property name="name" value="db_table_name" />
+							<property name="spreadSheetFile"
+								value="classpath:2sheet-sample.xls"></property>
+							<property name="worksheetName" value="data_sheet_2" />
+						</bean>
+						-->
+					</list>
+				</property>
+			</bean>
+		</property>
+	</bean>
+
+</beans>
